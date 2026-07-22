@@ -13,16 +13,21 @@ const uploadLogs = async (req, res) => {
 
     const inserted = await auditService.bulkUploadLogs(logs);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
+      message: "Logs uploaded successfully.",
       insertedCount: inserted.length,
     });
   } catch (error) {
-    console.error(error);
+    console.error("UPLOAD ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: error.message,
+      stack:
+        process.env.NODE_ENV !== "production"
+          ? error.stack
+          : undefined,
     });
   }
 };
@@ -31,17 +36,17 @@ const getLogs = async (req, res) => {
   try {
     const result = await auditService.getAuditLogs(req.query);
 
-    res.json({
+    return res.json({
       success: true,
       logs: result.logs,
       total: result.total,
     });
   } catch (error) {
-    console.error(error);
+    console.error("GET LOGS ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: error.message,
     });
   }
 };
@@ -50,16 +55,16 @@ const getStats = async (req, res) => {
   try {
     const stats = await auditService.getAuditStats();
 
-    res.json({
+    return res.json({
       success: true,
       ...stats,
     });
   } catch (error) {
-    console.error(error);
+    console.error("GET STATS ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: error.message,
     });
   }
 };

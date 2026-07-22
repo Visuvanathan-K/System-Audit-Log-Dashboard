@@ -15,7 +15,6 @@ import { useAuditContext } from "../context/AuditContext";
 
 export default function UploadLogs() {
   const navigate = useNavigate();
-
   const { refreshDashboard } = useAuditContext();
 
   const [file, setFile] = useState(null);
@@ -54,13 +53,19 @@ export default function UploadLogs() {
         navigate("/");
       }, 1000);
     } catch (error) {
+      console.error("UPLOAD ERROR:");
       console.error(error);
+      console.error(error.response);
 
       setSeverity("error");
-      setMessage(
-        error.response?.data?.message ||
-          "Failed to upload logs."
-      );
+
+      if (error.response) {
+        setMessage(
+          JSON.stringify(error.response.data, null, 2)
+        );
+      } else {
+        setMessage(error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -126,7 +131,14 @@ export default function UploadLogs() {
         )}
 
         {message && (
-          <Alert severity={severity} sx={{ mt: 3 }}>
+          <Alert
+            severity={severity}
+            sx={{
+              mt: 3,
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+            }}
+          >
             {message}
           </Alert>
         )}
